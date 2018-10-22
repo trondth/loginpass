@@ -41,7 +41,8 @@ def create_idporten_backend(name):
 
         def parse_openid(self, token, nonce=None):
             return parse_id_token(
-                self, token['id_token'], jwt_claims_options,
+                self, token['id_token'],
+                {"iss": {"values": [base_url]} },
                 token.get('access_token'), nonce
             )
 
