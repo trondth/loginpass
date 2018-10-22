@@ -19,6 +19,7 @@ from .spotify import Spotify
 from .yandex import Yandex
 from .twitch import Twitch
 from .vk import VK
+from .idporten import Idporten
 
 __all__ = [
     'register_to',
@@ -41,6 +42,7 @@ __all__ = [
     'Yandex',
     'Twitch',
     'VK',
+    'Idporten'
 ]
 
 __version__ = version
