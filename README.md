@@ -6,6 +6,29 @@ It works well with Authlib v0.7+.
 
 [Authlib]: https://authlib.org/
 
+<a href="https://lepture.com/donate"><img src="https://img.shields.io/badge/$-donate-ff69b4.svg?maxAge=2592000" /></a>
+<a href="https://patreon.com/lepture"><img src="https://img.shields.io/badge/I0-patreon-f96854.svg?maxAge=2592000" /></a>
+
+```python
+from flask import Flask
+from authlib.flask.client import OAuth
+from loginpass import create_flask_blueprint, GitHub
+
+app = Flask(__name__)
+oauth = OAuth(app)
+
+def handle_authorize(remote, token, user_info):
+    if token:
+        save_token(remote.name, token)
+    if user_info:
+        save_user(user_info)
+        return user_page
+    raise some_error
+
+github_bp = create_flask_blueprint(GitHub, oauth, handle_authorize)
+app.register_blueprint(github_bp, url_prefix='/github')
+```
+
 Useful Links
 ------------
 
