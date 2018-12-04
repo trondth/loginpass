@@ -21,6 +21,13 @@ from .twitch import Twitch
 from .vk import VK
 from .idporten import Idporten
 
+
+OAUTH_BACKENDS = [
+    Twitter, Facebook, Google, GitHub, Dropbox,
+    Reddit, Gitlab, Slack, Discord, StackOverflow,
+    Bitbucket, Strava, Spotify, Yandex, Twitch, VK
+]
+
 __all__ = [
     'register_to',
     'create_flask_blueprint',
@@ -43,6 +50,7 @@ __all__ = [
     'Twitch',
     'VK',
     'Idporten'
+    'OAUTH_BACKENDS',
 ]
 
 __version__ = version
