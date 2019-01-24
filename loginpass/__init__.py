@@ -19,7 +19,7 @@ from .spotify import Spotify
 from .yandex import Yandex
 from .twitch import Twitch
 from .vk import VK
-from .idporten import Idporten
+from .idporten import IDPorten
 
 
 OAUTH_BACKENDS = [
@@ -49,7 +49,7 @@ __all__ = [
     'Yandex',
     'Twitch',
     'VK',
-    'Idporten'
+    'IDPorten'
     'OAUTH_BACKENDS',
 ]
 

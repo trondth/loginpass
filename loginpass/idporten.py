@@ -8,45 +8,40 @@
     :license: AGPLv3+, see LICENSE for more details.
 """
 
-from authlib.specs.oidc import UserInfo
-from ._core import OAuthBackend, parse_id_token
+from ._core import UserInfo, OAuthBackend
 
 
-def create_idporten_backend(name):
-    """Build Azure Active Directory OAuth Backend."""
+class IDPorten(OAuthBackend):
+    OAUTH_TYPE = '2.0'
+    OAUTH_NAME = 'idporten'
+    OAUTH_CONFIG = {
+        'api_base_url': 'https://oidc-ver1.difi.no/',
+        'access_token_url': 'https://oidc-ver1.difi.no/idporten-oidc-provider/token"',
+        'authorize_url': 'https://oidc-ver1.difi.no/idporten-oidc-provider/authorize',
+        'client_kwargs': {'scope': 'openid profile'},
+        # 'acr_values': 'Level4'},
+    }
+    # JWK_SET_URL = '{}/{}/discovery/keys'.format(base_url, prefix)
 
-    base_url = 'https://oidc-ver1.difi.no/'
-    prefix = 'idporten-oidc-provider'
-
-    authorize_url = '{}/{}/authorize'.format(base_url, prefix)
-    token_url = '{}/{}/token'.format(base_url, prefix)
-
-    class IDPorten(OAuthBackend):
-        OAUTH_TYPE = '2.0,oidc'
-        OAUTH_NAME = name
-        OAUTH_CONFIG = {
-            'api_base_url': 'graph.microsoft.com',
-            'access_token_url': token_url,
-            'authorize_url': authorize_url,
-            'client_kwargs': {'scope': 'openid profile', 
-                'acr_values': 'Level4'},
+    def profile(self, **kwargs):
+        resp = self.get('user', **kwargs)
+        resp.raise_for_status()
+        data = resp.json()
+        params = {
+            'sub': str(data['id']),
+            'name': data['name'],
+            'email': data.get('email'),
+            'preferred_username': data['login'],
+            'profile': data['html_url'],
+            'picture': data['avatar_url'],
+            'website': data.get('blog'),
         }
-        JWK_SET_URL = '{}/{}/discovery/keys'.format(base_url, prefix)
-
-        def profile(self, **kwargs):
-            url = '{}/{}/userinfo'.format(base_url, prefix)
-            resp = self.get(url, **kwargs)
-            resp.raise_for_status()
-            return UserInfo(**resp.json())
-
-        def parse_openid(self, token, nonce=None):
-            return parse_id_token(
-                self, token['id_token'],
-                {"iss": {"values": [base_url]} },
-                token.get('access_token'), nonce
-            )
-
-    return IDPorten
+        return UserInfo(params)
 
 
-Idporten = create_idporten_backend('idporten')
+    # def parse_openid(self, token, nonce=None):
+    #     return parse_id_token(
+    #         self, token['id_token'],
+    #         {"iss": {"values": [base_url]} },
+    #         token.get('access_token'), nonce
+    #     )
