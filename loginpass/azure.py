@@ -10,17 +10,24 @@
 
 from ._core import UserInfo, OAuthBackend, parse_id_token
 
+_BASE_URL = 'https://login.microsoftonline.com/'
 
-def create_azure_backend(name, tenant):
-    """Build Azure Active Directory OAuth Backend."""
 
-    base_url = 'https://login.microsoftonline.com/'
-    authorize_url = '{}{}/oauth2/authorize'.format(base_url, tenant)
-    token_url = '{}{}/oauth2/token'.format(base_url, tenant)
+def create_azure_backend(name, tenant, version=1):
+    if version == 1:
+        authorize_url = '{}{}/oauth2/authorize'.format(_BASE_URL, tenant)
+        token_url = '{}{}/oauth2/token'.format(_BASE_URL, tenant)
+        issuer_url = 'https://sts.windows.net/{}/'.format(tenant)
+    elif version == 2:
+        authorize_url = '{}{}/oauth2/v2.0/authorize'.format(_BASE_URL, tenant)
+        token_url = '{}{}/oauth2/v2.0/token'.format(_BASE_URL, tenant)
+        issuer_url = '{}{}/v2.0'.format(_BASE_URL, tenant)
+    else:
+        raise ValueError('Invalid version')
 
-    jwt_claims_options = {
+    claims_options = {
         "iss": {
-            "values": ['https://sts.windows.net/{}/'.format(tenant)]
+            "values": [issuer_url]
         }
     }
 
@@ -33,17 +40,17 @@ def create_azure_backend(name, tenant):
             'authorize_url': authorize_url,
             'client_kwargs': {'scope': 'openid email profile'},
         }
-        JWK_SET_URL = '{}{}/discovery/keys'.format(base_url, tenant)
+        JWK_SET_URL = '{}{}/discovery/keys'.format(_BASE_URL, tenant)
 
         def profile(self, **kwargs):
-            url = '{}{}/openid/userinfo'.format(base_url, tenant)
+            url = '{}{}/openid/userinfo'.format(_BASE_URL, tenant)
             resp = self.get(url, **kwargs)
             resp.raise_for_status()
             return UserInfo(**resp.json())
 
         def parse_openid(self, token, nonce=None):
             return parse_id_token(
-                self, token['id_token'], jwt_claims_options,
+                self, token['id_token'], claims_options,
                 token.get('access_token'), nonce
             )
 
