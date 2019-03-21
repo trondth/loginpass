@@ -73,4 +73,30 @@ def create_flask_blueprint(backend, oauth, handle_authorize):
             params['nonce'] = nonce
         return remote.authorize_redirect(redirect_uri, **params)
 
+    
+    @bp.route('/logout')
+    def logout():
+        """
+        Redirects to logout service and calls handle_logout if it exists.
+        """
+        endsession_url = backend.ENDSESSION_URL
+        post_logout_redirect_uri = current_app.config.get('LOGGED_OUT_URI', '/')
+        if remote.name + ':id_token' in session:
+            id_token_hint = session[remote.name + ':id_token']
+            logout_url = endsession_url + "?" + urllib.parse.urlencode({
+                                "id_token_hint": id_token_hint,
+                                "post_logout_redirect_uri": post_logout_redirect_uri,
+                                "state": "logged_out:" + remote.name}
+                                )
+        else:
+            logout_url = endsession_url + "?" + urllib.parse.urlencode({
+                                "post_logout_redirect_uri": post_logout_redirect_uri,
+                                "state": "logged_out:" + remote.name}
+                                )
+        if nonce_key in session:
+            del session[nonce_key]
+        if handle_logout:
+            handle_logout(remote)
+        return redirect(logout_url)
+    
     return bp
