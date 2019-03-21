@@ -19,13 +19,15 @@ from .spotify import Spotify
 from .yandex import Yandex
 from .twitch import Twitch
 from .vk import VK
-from .idporten import IDPorten
+from .idporten import IDPorten, create_idporten_backend
+from .dataporten import Dataporten, create_dataporten_backend
 
 
 OAUTH_BACKENDS = [
     Twitter, Facebook, Google, GitHub, Dropbox,
     Reddit, Gitlab, Slack, Discord, StackOverflow,
-    Bitbucket, Strava, Spotify, Yandex, Twitch, VK
+    Bitbucket, Strava, Spotify, Yandex, Twitch, VK,
+    IDPorten, Dataporten
 ]
 
 __all__ = [
@@ -49,7 +51,8 @@ __all__ = [
     'Yandex',
     'Twitch',
     'VK',
-    'IDPorten'
+    'IDPorten', 'create_idporten_backend',
+    'Dataporten', 'create_dataporten_backend',
     'OAUTH_BACKENDS',
 ]
 
